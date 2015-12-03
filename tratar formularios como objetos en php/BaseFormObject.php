@@ -260,12 +260,12 @@ abstract class BaseFormObject {
     }
 
     //aqui definiriamos las reglas en las clases que hereden de esta clase
-    public function rules(){
+    protected function rules(){
 
     }
 
     //aqui definiriamos los filtros en las clases que hereden de esta clase
-    public function filters(){
+    protected function filters(){
 
     }
 

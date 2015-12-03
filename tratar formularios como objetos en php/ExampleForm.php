@@ -21,7 +21,7 @@ class ExampleForm extends  BaseFormObject
     ];
 
     //agregamos las reglas deseadas
-    public function rules(){
+    protected function rules(){
 
         $this->addRule(['attribute' => 'field1', 'rule' =>'integer']);
         $this->addRule(['attribute' => 'field4', 'rule' =>'numeric']);
@@ -29,7 +29,7 @@ class ExampleForm extends  BaseFormObject
     }
 
     //agregamos los filtros deseados
-    public function filters(){
+    protected function filters(){
 
         $this->addFilter(['attribute' => 'field5', 'filter' =>'uppercase']);
         $this->addFilter(['attribute' => 'field3', 'filter' =>'trim']);
