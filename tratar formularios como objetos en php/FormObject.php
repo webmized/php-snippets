@@ -4,6 +4,10 @@ abstract Class FormObject
 {
 
     /*
+     * creado por: Franchesco Fonseca
+     * Github user: frankirox
+     * email: <franchesco@outlook.com>
+     *
      * Este codigo es solo un ejemplo de libre uso, modifiquelo cuanto quiera y uselo para lo que quiera.
      *
      * Información IMPORTANTE sobre las [REGLAS]:
