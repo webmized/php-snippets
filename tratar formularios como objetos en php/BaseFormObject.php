@@ -176,7 +176,7 @@ abstract class BaseFormObject {
         $this->{$attribute} = strtolower($this->{$attribute});
     }
 
-
+    //metodo para agregar filtros
     protected function addRule($rule)
     {
 
@@ -201,7 +201,7 @@ abstract class BaseFormObject {
         return $this->_formRules[] = $rule;
     }
 
-
+    //metodo para agregar filtros
     protected function addFilter($filter)
     {
 
@@ -226,7 +226,7 @@ abstract class BaseFormObject {
         return $this->_formFilters[] = $filter;
     }
 
-
+    //metodo que carga el POST a los atributos de la clase
     public function load($array_attributes)
     {
 
@@ -259,14 +259,17 @@ abstract class BaseFormObject {
 
     }
 
+    //aqui definiriamos las reglas en las clases que hereden de esta clase
     public function rules(){
 
     }
 
+    //aqui definiriamos los filtros en las clases que hereden de esta clase
     public function filters(){
 
     }
 
+    //este metodo ejecuta todas las validaciones y todos los filtros
     public function validate()
     {
 

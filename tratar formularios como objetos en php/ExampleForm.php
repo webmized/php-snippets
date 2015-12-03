@@ -1,12 +1,7 @@
 <?php
 
 include 'BaseFormObject.php';
-/**
- * Created by PhpStorm.
- * User: Franchesco
- * Date: 03/12/2015
- * Time: 12:45 AM
- */
+
 class ExampleForm extends  BaseFormObject
 {
 
@@ -16,6 +11,7 @@ class ExampleForm extends  BaseFormObject
     public $field4;
     public $field5;
 
+    //definimos los labels
     protected $_attributeLabels = [
         'field1' => 'Campo 1',
         'field2' => 'Campo 2',
@@ -24,6 +20,7 @@ class ExampleForm extends  BaseFormObject
         'field5' => 'Campo 5',
     ];
 
+    //agregamos las reglas deseadas
     public function rules(){
 
         $this->addRule(['attribute' => 'field1', 'rule' =>'integer']);
@@ -31,13 +28,11 @@ class ExampleForm extends  BaseFormObject
         $this->addRule(['attribute' => 'field5', 'rule' =>'required']);
     }
 
+    //agregamos los filtros deseados
     public function filters(){
 
         $this->addFilter(['attribute' => 'field5', 'filter' =>'uppercase']);
         $this->addFilter(['attribute' => 'field3', 'filter' =>'trim']);
     }
-
-
-
 
 }
