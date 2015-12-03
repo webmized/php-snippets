@@ -9,12 +9,12 @@
 
 <body>
 
-<form name="FormEjemplo" method="post" action="example_results.php">
-    <input type="text" name="FormEjemplo[field1]"> <br>
-    <input type="text" name="FormEjemplo[field2]"> <br>
-    <input type="text" name="FormEjemplo[field3]"> <br>
-    <input type="text" name="FormEjemplo[field4]"> <br>
-    <input type="text" name="FormEjemplo[field5]"> <br>
+<form name="ExampleForm" method="post" action="example_results.php">
+    <input type="text" name="ExampleForm[field1]"> <br>
+    <input type="text" name="ExampleForm[field2]"> <br>
+    <input type="text" name="ExampleForm[field3]"> <br>
+    <input type="text" name="ExampleForm[field4]"> <br>
+    <input type="text" name="ExampleForm[field5]"> <br>
 
     <button type="submit">Enviar</button>
 </form>

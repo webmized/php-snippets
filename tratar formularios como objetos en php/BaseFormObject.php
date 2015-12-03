@@ -1,7 +1,6 @@
 <?php
 
-abstract Class FormObject
-{
+abstract class BaseFormObject {
 
     /*
      * creado por: Franchesco Fonseca
@@ -56,6 +55,8 @@ abstract Class FormObject
 
     protected $_formFilters = [];
 
+    // array para almacenar  las etiquetas de los atributos atributo => etiqueta
+    protected $_attributeLabels = [];
 
     /*
     * los errores encontrados al validar las reglas se almacenarán en este array vacío de la siguiete manera para luego
@@ -72,21 +73,46 @@ abstract Class FormObject
     //metodo para registrar errores presentes en un campo del formulario
     protected function addError($attribute, $msg)
     {
-        if (!isset($this->_formErrors[$this->{$attribute}])) {
+        if (!isset($this->_formErrors[$attribute])) {
 
-            $this->_formErrors[$this->{$attribute}] = [];
+            $this->_formErrors[$attribute] = [];
         }
 
-        $this->_formErrors[$this->{$attribute}][] = $msg;
+        $this->_formErrors[$attribute][] = $msg;
     }
 
-    public function attributeLabel($attribute)
+
+    public function getErrors($attribute = null){
+
+        if($attribute != null){
+
+            if (!property_exists($this,$attribute)) {
+
+                throw new Exception("El atributo {$attribute} no existe");
+            }
+
+            if(isset($this->_formErrors[$attribute])){
+
+                return $this->_formErrors[$attribute];
+
+            }else{
+
+                return [];
+            }
+
+        }else{
+
+            return $this->_formErrors;
+        }
+
+
+    }
+
+    public function attributeLabels($attribute)
     {
 
         // attribute => label
-        $attributeLabels = [
-
-        ];
+        $attributeLabels = $this->_attributeLabels;
 
 
         return ((isset($attributeLabels[$attribute]) ? $attributeLabels[$attribute] : null));
@@ -97,26 +123,33 @@ abstract Class FormObject
     protected function ruleInteger($attribute)
     {
 
-        if (!is_int($this->{$attribute})) {
+        if (is_numeric($this->{$attribute})) {
+
+            if(fmod($this->{$attribute}, 1) != 0){
+
+                $this->addError($attribute, $this->attributeLabels($attribute) . " " . "debe ser un número entero");
+            }
+
+        }else{
 
             $this->addError($attribute, $this->attributeLabels($attribute) . " " . "debe ser un número entero");
         }
     }
 
     //devuelve un error si el tipo de dato no es double
-    protected function ruleDouble($value)
+    protected function ruleNumeric($attribute)
     {
 
-        if (!is_double($this->{$attribute})) {
+        if (!is_numeric($this->{$attribute})) {
 
             $this->addError($attribute,
-                $this->attributeLabels($attribute) . " " . "debe ser un número de doble precisión");
+                $this->attributeLabels($attribute) . " " . "debe ser un número");
         }
 
     }
 
     //devuelve un error de datos faltantes si la validación no se cumple
-    protected function ruleRequired($value)
+    protected function ruleRequired($attribute)
     {
 
         if (empty($this->{$attribute})) {
@@ -128,7 +161,7 @@ abstract Class FormObject
     //asegura que lo que contenga el atributo no tenga espacio en blanco a los extremos
     protected function filterTrim($attribute)
     {
-        $this->{$attribute} = strtoupper($this->{$attribute});
+        $this->{$attribute} = trim($this->{$attribute});
     }
 
     //asegura que lo que contenda el atributo se encuentre en mayuscula
@@ -144,7 +177,7 @@ abstract Class FormObject
     }
 
 
-    public function addRule($rule)
+    protected function addRule($rule)
     {
 
         if (!is_array($rule)) {
@@ -169,7 +202,7 @@ abstract Class FormObject
     }
 
 
-    public function addFilter($filter)
+    protected function addFilter($filter)
     {
 
         if (!is_array($filter)) {
@@ -178,7 +211,7 @@ abstract Class FormObject
              forma ['attribute' => attributeName, 'filter' => filterName]");
         }
 
-        if (!array_key_exists('attribute', $filter) || !array_key_exists('rule', $filter)) {
+        if (!array_key_exists('attribute', $filter) || !array_key_exists('filter', $filter)) {
 
             throw new Exception("Malformación de filtro de formulario, un filtro representado en un array debe tener
              obligatoriamente la llave attribute y la llave filter");
@@ -190,7 +223,7 @@ abstract Class FormObject
              posiciones en el array");
         }
 
-        return $this->_defaultFilters[] = $filter;
+        return $this->_formFilters[] = $filter;
     }
 
 
@@ -203,7 +236,9 @@ abstract Class FormObject
 
                 foreach ($array_attributes[get_class($this)] as $attribute => $value) {
 
-                    if (isset($this->{$attribute})) {
+                    $attribute = trim($attribute);
+
+                    if (property_exists($this,$attribute)) {
 
                         $this->{$attribute} = $value;
                     } else {
@@ -224,28 +259,39 @@ abstract Class FormObject
 
     }
 
+    public function rules(){
+
+    }
+
+    public function filters(){
+
+    }
+
     public function validate()
     {
+
+        $this->rules();
+        $this->filters();
 
         //aplicar todos los filtros
         foreach ($this->_formFilters as $filterToApply) {
 
             $attributeToEval = $filterToApply['attribute'];
 
-            if (!isset($this->{$attributeToEval})) {
+            if (!property_exists($this,$attributeToEval)) {
 
                 throw new Exception("El atributo {$attributeToEval} no existe");
             }
 
-            $methoTobeUsed = "filter" . ucfirst($filterToApply['attribute']);
+            $methodTobeUsed = "filter" . ucfirst($filterToApply['filter']);
 
-            if (!method_exists($this, $methoTobeUsed)) {
+            if (!method_exists($this, $methodTobeUsed)) {
 
-                throw new Exception("El método {$methoTobeUsed} no existe, no se puede filtrar
+                throw new Exception("El método {$methodTobeUsed} no existe, no se puede filtrar
                  el atributo {$attributeToEval}");
             }
 
-            $this->{$methoTobeUsed}($attributeToEval);
+            $this->{$methodTobeUsed}($attributeToEval);
 
         }
 
@@ -254,23 +300,31 @@ abstract Class FormObject
 
             $attributeToEval = $ruleToEval['attribute'];
 
-            if (!isset($this->{$attributeToEval})) {
+            if (!property_exists($this,$attributeToEval)) {
 
                 throw new Exception("El atributo {$attributeToEval} no existe");
             }
 
-            $methoTobeUsed = "rule" . ucfirst($ruleToEval['attribute']);
+            $methodTobeUsed = "rule" . ucfirst($ruleToEval['rule']);
 
-            if (!method_exists($this, $methoTobeUsed)) {
+            if (!method_exists($this, $methodTobeUsed)) {
 
-                throw new Exception("El método {$methoTobeUsed} no existe, no se puede validar
+                throw new Exception("El método {$methodTobeUsed} no existe, no se puede validar
                  el atributo {$attributeToEval}");
             }
 
-            $this->{$methoTobeUsed}($attributeToEval);
+            $this->{$methodTobeUsed}($attributeToEval);
 
         }
 
+
+        //si el atributo _formErrors tiene valores, entonces el formulario no es valido.
+        if(count($this->_formErrors) > 0 ){
+
+            return false;
+        }
+
+        return true;
     }
 
 }
